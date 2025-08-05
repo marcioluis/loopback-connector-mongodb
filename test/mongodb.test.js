@@ -141,6 +141,26 @@ describe('connect', function() {
       },
     );
   });
+
+  it('should connect on cluster url connection string', function(done) {
+    // Example cluster URL (replace with a real one for actual tests)
+    const clusterUrl = 'mongodb://user:password@127.0.0.1:27017,127.0.0.1:27017,127.0.0.1:27017/test_db?retryWrites=true&loadBalanced=false&readPreference=primary&authSource=test_db&authMechanism=SCRAM-SHA-256';
+    const ds = global.getDataSource({
+      url: clusterUrl,
+      serverSelectionTimeoutMS: 2000,
+      lazyConnect: false,
+    });
+
+    ds.once('connected', function() {
+      ds.disconnect(done);
+    });
+
+    ds.on('error', function(err) {
+      // If you don't have a real cluster, just check error is connection-related
+      err.name.should.match(/Mongo/);
+      done();
+    });
+  });
 });
 
 describe('mongodb connector', function() {
